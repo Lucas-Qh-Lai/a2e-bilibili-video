@@ -20,6 +20,5 @@ jobs:
         run: |
           test -f SKILL.md
           test -f README.md
-          test -f README.zh-CN.md
+          test -f README.en.md
           test -f LICENSE
-
