@@ -27,6 +27,14 @@ def bilibili_root(explicit: str | None) -> Path:
     return codex_home() / "skills" / "bilibili-ai-video"
 
 
+def default_python() -> Path:
+    """Prefer this skill's local environment when it has the validator deps."""
+    local_python = Path(__file__).resolve().parent.parent / ".venv" / "bin" / "python"
+    if local_python.is_file():
+        return local_python
+    return Path(sys.executable)
+
+
 def load_module(path: Path):
     if not path.is_file():
         raise SystemExit(f"Missing upstream module: {path}")
@@ -104,7 +112,7 @@ def main() -> int:
     parser.add_argument("--config", required=True)
     parser.add_argument("--cookies")
     parser.add_argument("--bilibili-skill-dir")
-    parser.add_argument("--python", default=sys.executable)
+    parser.add_argument("--python", default=str(default_python()))
     parser.add_argument("--validate-only", action="store_true")
     parser.add_argument("--skip-public-wait", action="store_true")
     args = parser.parse_args()
@@ -114,7 +122,9 @@ def main() -> int:
     args.cover_16x9 = Path(args.cover_16x9).expanduser().resolve()
     args.cover_4x3 = Path(args.cover_4x3).expanduser().resolve()
     args.config = Path(args.config).expanduser().resolve()
-    python = Path(args.python).expanduser().resolve()
+    # Do not resolve symlinks here: a venv's `bin/python` intentionally points
+    # at the base interpreter, but resolving it would discard the venv context.
+    python = Path(args.python).expanduser()
     run_validator(python, args)
     if args.validate_only:
         return 0

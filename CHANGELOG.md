@@ -2,6 +2,16 @@
 
 All notable changes are documented here.
 
+## [0.1.2] - 2026-09-13
+
+### Fixed
+
+- Prefer the skill-local `.venv` when the publishing adapter runs its
+  validator subprocess.
+- Preserve virtual-environment context when resolving the Python executable.
+  The previous implementation followed the `bin/python` symlink to the base
+  interpreter and could lose access to project-local packages such as Pillow.
+
 ## [0.1.1] - 2026-09-13
 
 ### First Official Release
