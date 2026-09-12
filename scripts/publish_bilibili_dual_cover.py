@@ -38,16 +38,23 @@ def load_module(path: Path):
     return module
 
 
-def patch_add_payload(module, cover43_url: str) -> None:
-    """Inject cover43 into the upstream add/v3 payload."""
-    original = getattr(module, "step_submit")
+class DualCoverSession:
+    """Proxy an upstream requests session and inject cover43 on add/v3."""
 
-    def submit_with_cover43(*args, **kwargs):
-        if "cover43" in kwargs:
-            kwargs["cover43"] = cover43_url
-        return original(*args, **kwargs)
+    def __init__(self, upstream_session, cover43_url: str):
+        self._upstream_session = upstream_session
+        self._cover43_url = cover43_url
 
-    module.step_submit = submit_with_cover43
+    def __getattr__(self, name):
+        return getattr(self._upstream_session, name)
+
+    def post(self, url: str, *args, **kwargs):
+        if "/x/vu/web/add/v3" in url and isinstance(kwargs.get("json"), dict):
+            kwargs["json"] = {
+                **kwargs["json"],
+                "cover43": self._cover43_url,
+            }
+        return self._upstream_session.post(url, *args, **kwargs)
 
 
 def run_validator(python: Path, args: argparse.Namespace) -> None:
@@ -155,74 +162,14 @@ def main() -> int:
         )
         stem = Path(pre["upos_uri"]).stem
 
-        original_submit = publisher.step_submit
-
-        def submit_with_cover43(
-            submit_session,
-            submit_config,
-            submit_cover,
-            submit_stem,
-            submit_cid,
-            submit_csrf,
-        ):
-            payload = {
-                "videos": [
-                    {
-                        "filename": submit_stem,
-                        "title": submit_config["title"],
-                        "desc": "",
-                        "cid": submit_cid,
-                    }
-                ],
-                "cover": submit_cover,
-                "cover43": cover43_url,
-                "title": submit_config["title"],
-                "copyright": 1,
-                "tid": submit_config["tid"],
-                "tag": submit_config["tag"],
-                "desc_format_id": 9999,
-                "desc": submit_config["desc"],
-                "recreate": -1,
-                "dynamic": submit_config.get("dynamic", ""),
-                "interactive": 0,
-                "act_reserve_create": 0,
-                "no_disturbance": 0,
-                "no_reprint": 0,
-                "subtitle": {"open": 0, "lan": ""},
-                "dolby": 0,
-                "lossless_music": 0,
-                "up_selection_reply": False,
-                "up_close_reply": False,
-                "up_close_danmu": False,
-                "web_os": 3,
-                "csrf": submit_csrf,
-            }
-            if submit_config.get("human_type2"):
-                payload["human_type2"] = submit_config["human_type2"]
-            submit_session.get(
-                "https://member.bilibili.com/x/geetest/pre/add", timeout=10
-            )
-            response = submit_session.post(
-                "https://member.bilibili.com/x/vu/web/add/v3",
-                params={"ts": int(time.time() * 1000), "csrf": submit_csrf},
-                json=payload,
-                timeout=60,
-            )
-            result = response.json()
-            if result.get("code") != 0:
-                raise RuntimeError(f"add/v3 failed: {result}")
-            return result["data"]
-
-        publisher.step_submit = submit_with_cover43
         data = publisher.step_submit(
-            session,
+            DualCoverSession(session, cover43_url),
             config,
             cover_url,
             stem,
             pre["biz_id"],
             csrf,
         )
-        publisher.step_submit = original_submit
 
         result_path = (
             args.project / "delivery" / "bilibili" / "publish_result.json"
@@ -269,4 +216,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

@@ -2,6 +2,16 @@
 
 All notable changes are documented here.
 
+## [0.1.1] - 2026-09-13
+
+### Fixed
+
+- Clarified that `--bilibili-skill-dir` accepts the skill root directory.
+- Reduced duplicated upstream publishing logic by injecting `cover43` at the
+  HTTP session boundary.
+- Added the missing skill entrypoint and reference documents to the initial
+  published repository.
+
 ## [0.1.0] - 2026-09-13
 
 ### Added
@@ -14,4 +24,3 @@ All notable changes are documented here.
 - Bilibili dual-cover publishing adapter.
 - Dependency checker.
 - English and Chinese documentation.
-

@@ -174,7 +174,7 @@ it does not bundle or redistribute that project. It uploads both covers,
 injects the 4:3 URL as `cover43`, and then verifies the public result.
 
 If the Bilibili skill is installed elsewhere, pass
-`--bilibili-skill-dir /absolute/path/to/bilibili-ai-video/scripts` or set
+`--bilibili-skill-dir /absolute/path/to/bilibili-ai-video` or set
 `BILIBILI_SKILL_DIR`.
 
 ## Verification
@@ -191,4 +191,3 @@ If the Bilibili skill is installed elsewhere, pass
 - [PPT Master dual covers](references/ppt-master-covers.md)
 - [Bilibili publishing and verification](references/bilibili-publish.md)
 - [Architecture and boundaries](docs/architecture.md)
-
