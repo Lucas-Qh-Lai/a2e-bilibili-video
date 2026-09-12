@@ -18,7 +18,10 @@ jobs:
         run: python -m compileall -q scripts
       - name: Validate skill structure
         run: |
-          test -f SKILL.md
-          test -f README.md
-          test -f README.en.md
-          test -f LICENSE
+          for file in SKILL.md README.md README.en.md LICENSE CHANGELOG.md; do
+            if [ ! -f "$file" ]; then
+              echo "Missing required file: $file"
+              exit 1
+            fi
+            echo "Found: $file"
+          done
