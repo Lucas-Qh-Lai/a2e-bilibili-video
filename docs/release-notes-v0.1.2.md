@@ -1,7 +1,11 @@
-# A2E Bilibili Video v0.1.1
+# A2E Bilibili Video v0.1.2
 
 **First official release.** This is the first installable and supported version
 of the A2E Bilibili Video skill.
+
+The version number is `0.1.2` because the repository retains its continuous
+version history. Functionally, this is the first stable release that users
+should install.
 
 ## Summary
 
@@ -78,6 +82,17 @@ source code, credentials, generated media, or machine-specific paths.
   of version control.
 - Requires explicit human confirmation before the public submission call.
 
+### Local Runtime Integration
+
+- Prefers the skill-local `.venv` when the publishing adapter launches its
+  validator subprocess.
+- Preserves virtual-environment context instead of resolving `bin/python` to
+  the base interpreter.
+- Keeps validator dependencies such as Pillow available even when the parent
+  process was started from a uv-managed Python runtime.
+- Uses portable environment variables for the three upstream dependency
+  roots.
+
 ## Installation
 
 The README includes two separate installation paths:
@@ -137,6 +152,9 @@ Before release:
 - The public GitHub workflow passes.
 - The Bilibili `cover43` injection is covered by a local mock test.
 - The release tag points to the current published commit.
+- The local migrated installation passes the dependency check.
+- The local publishing adapter validates a test video and both cover ratios.
+- The 1920×1080 Remotion render path produces H.264 video with AAC 44.1kHz.
 
 ## Privacy
 
@@ -177,3 +195,12 @@ will remain unchanged. Cross-platform cookie extraction, additional cover
 presets, optional subtitle export, and more validators are planned for future
 releases.
 
+## Release Policy
+
+- Future updates will use monotonically increasing semantic versions.
+- Existing releases and tags will be retained.
+- New releases will add to the project history instead of replacing or
+  deleting an earlier release.
+- Patch releases fix compatibility or correctness.
+- Minor releases add capabilities without breaking the documented workflow.
+- Major releases are reserved for incompatible interface or workflow changes.

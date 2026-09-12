@@ -4,6 +4,12 @@ All notable changes are documented here.
 
 ## [0.1.2] - 2026-09-13
 
+### First Stable Release
+
+- This is the first installable and supported release of A2E Bilibili Video.
+- The version remains `0.1.2` to preserve the project's continuous version
+  history.
+
 ### Fixed
 
 - Prefer the skill-local `.venv` when the publishing adapter runs its
@@ -11,6 +17,11 @@ All notable changes are documented here.
 - Preserve virtual-environment context when resolving the Python executable.
   The previous implementation followed the `bin/python` symlink to the base
   interpreter and could lose access to project-local packages such as Pillow.
+
+### Release Policy
+
+- Future updates will use strictly increasing semantic versions.
+- Previous releases and tags will be retained for historical traceability.
 
 ## [0.1.1] - 2026-09-13
 
