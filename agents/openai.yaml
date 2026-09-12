@@ -1,0 +1,4 @@
+interface:
+  display_name: "A2E Bilibili Video"
+  short_description: "A2E explainer video to Bilibili with Edge TTS"
+  default_prompt: "制作一条讲解视频并发布到 B 站。"

@@ -1,0 +1,32 @@
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+cookies.json
+*cookies*.json
+*.key
+*.pem
+
+# Local project and generated media
+work/
+outputs/
+projects/
+renders/
+delivery/
+covers/
+fin_frames/
+audio/cache/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Node
+node_modules/
+
+# OS and editor
+.DS_Store
+.idea/
+.vscode/
+
