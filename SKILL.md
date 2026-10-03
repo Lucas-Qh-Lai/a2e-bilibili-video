@@ -22,10 +22,23 @@ Resolve the dependency roots before running commands:
 
 ```bash
 export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
-export A2E_SKILL_DIR="${A2E_SKILL_DIR:-$CODEX_HOME/skills/anything2explainer}"
-export BILIBILI_PUBLISH_SKILL_DIR="${BILIBILI_PUBLISH_SKILL_DIR:-$CODEX_HOME/skills/bilibili-publish}"
+
+# Skills may live in Codex's own directory or in the shared cross-agent
+# store that the skills CLI manages (~/.agents/skills). Pick whichever exists.
+find_skill() {
+  for d in "$CODEX_HOME/skills/$1" "$HOME/.agents/skills/$1" \
+           "$HOME/.claude/skills/$1" "$HOME/.config/opencode/skills/$1"; do
+    [ -e "$d" ] && { printf '%s' "$d"; return; }
+  done
+  printf '%s' "$CODEX_HOME/skills/$1"
+}
+
+export A2E_SKILL_DIR="${A2E_SKILL_DIR:-$(find_skill anything2explainer)}"
+export BILIBILI_PUBLISH_SKILL_DIR="${BILIBILI_PUBLISH_SKILL_DIR:-$(find_skill bilibili-publish)}"
 export PPT_MASTER_DIR="${PPT_MASTER_DIR:-$HOME/ppt-master/skills/ppt-master}"
-export SKILL_DIR="${SKILL_DIR:-$CODEX_HOME/skills/a2e-bilibili-video}"
+
+# This skill's own directory: set SKILL_DIR explicitly, or let it resolve.
+export SKILL_DIR="${SKILL_DIR:-$(find_skill a2e-bilibili-video)}"
 ```
 
 Run the dependency check first:
