@@ -2,6 +2,21 @@
 
 All notable changes are documented here.
 
+## [0.1.4] - 2026-10-03
+
+### Fixed
+
+- **Path resolution in a shared-store layout.** The dependency check and the
+  publishing adapter previously assumed `bilibili-publish` and
+  `anything2explainer` live under `$CODEX_HOME/skills`. On a machine where the
+  skills CLI manages them in the shared store, they live under
+  `~/.agents/skills`, so both now search a candidate list:
+  `$CODEX_HOME/skills`, `~/.agents/skills`, `~/.claude/skills`,
+  `~/.config/opencode/skills`. An explicit
+  `BILIBILI_PUBLISH_SKILL_DIR` / `A2E_SKILL_DIR` still wins.
+- `bilibili-publish` no longer has to sit in `$CODEX_HOME/skills` for the
+  adapter to find it.
+
 ## [0.1.3] - 2026-10-03
 
 ### Changed

@@ -17,14 +17,46 @@ def resolve(env_name: str, fallback: Path) -> Path:
     return Path(os.environ.get(env_name, fallback)).expanduser().resolve()
 
 
+def resolve_publish_root() -> Path:
+    """Locate the bilibili-publish skill across the shared agent stores."""
+    return resolve_skill(
+        "bilibili-publish",
+        ("BILIBILI_PUBLISH_SKILL_DIR", "BILIBILI_SKILL_DIR"),
+    )
+
+
+def skill_search_paths(name: str) -> list[Path]:
+    """Candidate locations for a skill, in priority order.
+
+    `~/.codex/skills` is Codex's native directory; `~/.agents/skills` is the
+    shared cross-agent store that the skills CLI manages (also reachable as
+    `~/.claude/skills`). The rest are per-agent mirrors.
+    """
+    home = Path.home()
+    return [
+        codex_home() / "skills" / name,
+        home / ".agents" / "skills" / name,
+        home / ".claude" / "skills" / name,
+        home / ".config" / "opencode" / "skills" / name,
+    ]
+
+
+def resolve_skill(name: str, env_names: tuple[str, ...] = ()) -> Path:
+    for env_name in env_names:
+        configured = os.environ.get(env_name)
+        if configured:
+            return Path(configured).expanduser().resolve()
+    for candidate in skill_search_paths(name):
+        if (candidate / "SKILL.md").is_file():
+            return candidate.resolve()
+    return skill_search_paths(name)[0]
+
+
 def main() -> int:
     roots = {
-        "A2E": resolve(
-            "A2E_SKILL_DIR", codex_home() / "skills" / "anything2explainer"
-        ),
-        "Bilibili publish": resolve(
-            "BILIBILI_PUBLISH_SKILL_DIR", codex_home() / "skills" / "bilibili-publish"
-        ),
+        "A2E": resolve_skill("anything2explainer", ("A2E_SKILL_DIR",)),
+        "Bilibili publish": resolve_publish_root(),
+        # PPT Master is a standalone repo, not a skill in the agent stores.
         "PPT Master": resolve(
             "PPT_MASTER_DIR", Path.home() / "ppt-master" / "skills" / "ppt-master"
         ),

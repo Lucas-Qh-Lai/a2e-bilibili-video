@@ -27,6 +27,22 @@ def codex_home() -> Path:
     return Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")).expanduser()
 
 
+def candidate_roots() -> list[Path]:
+    """Where `bilibili-publish` may live, in priority order.
+
+    On this machine the shared cross-agent store (~/.agents/skills) is the
+    canonical location for CLI-managed skills, while ~/.codex/skills holds
+    Codex-only ones. Both are checked so the adapter works either way.
+    """
+    home = Path.home()
+    return [
+        codex_home() / "skills" / PUBLISH_SKILL_NAME,
+        home / ".agents" / "skills" / PUBLISH_SKILL_NAME,
+        home / ".claude" / "skills" / PUBLISH_SKILL_NAME,
+        home / ".config" / "opencode" / "skills" / PUBLISH_SKILL_NAME,
+    ]
+
+
 def publish_skill_root(explicit: str | None) -> Path:
     """Resolve the bilibili-publish skill directory."""
     if explicit:
@@ -36,7 +52,10 @@ def publish_skill_root(explicit: str | None) -> Path:
     )
     if configured:
         return Path(configured).expanduser().resolve()
-    return codex_home() / "skills" / PUBLISH_SKILL_NAME
+    for candidate in candidate_roots():
+        if (candidate / "scripts" / "publish_bilibili.py").is_file():
+            return candidate.resolve()
+    return candidate_roots()[0]
 
 
 def default_python() -> Path:
