@@ -13,6 +13,18 @@ export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 export BILIBILI_PUBLISH_SKILL_DIR="${BILIBILI_PUBLISH_SKILL_DIR:-$CODEX_HOME/skills/bilibili-publish}"
 ```
 
+`bilibili-publish` 可以在以下任一位置，按优先级查找：
+
+```text
+$CODEX_HOME/skills/bilibili-publish
+~/.agents/skills/bilibili-publish
+~/.claude/skills/bilibili-publish
+~/.config/opencode/skills/bilibili-publish
+```
+
+`BILIBILI_PUBLISH_SKILL_DIR` 仍然优先于以上全部。
+
+
 Expected files:
 
 ```text

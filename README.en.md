@@ -149,7 +149,7 @@ guide instead of installing PPT Master packages globally.
 ```bash
 export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 export A2E_SKILL_DIR="$CODEX_HOME/skills/anything2explainer"
-export BILIBILI_PUBLISH_SKILL_DIR="$CODEX_HOME/skills/bilibili-publish"
+export BILIBILI_PUBLISH_SKILL_DIR="$CODEX_HOME/skills/bilibili-publish"  # or ~/.agents/skills
 export PPT_MASTER_DIR="$HOME/ppt-master/skills/ppt-master"
 
 python3 scripts/check_dependencies.py
@@ -189,7 +189,7 @@ Set the dependency roots:
 ```bash
 export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 export A2E_SKILL_DIR="$CODEX_HOME/skills/anything2explainer"
-export BILIBILI_PUBLISH_SKILL_DIR="$CODEX_HOME/skills/bilibili-publish"
+export BILIBILI_PUBLISH_SKILL_DIR="$CODEX_HOME/skills/bilibili-publish"  # or ~/.agents/skills
 export PPT_MASTER_DIR="$HOME/ppt-master/skills/ppt-master"
 export SKILL_DIR="$CODEX_HOME/skills/a2e-bilibili-video"
 ```

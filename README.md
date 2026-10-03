@@ -141,7 +141,7 @@ PPT Master 可能有独立依赖，请遵循它的安装文档，不要全局安
 ```bash
 export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 export A2E_SKILL_DIR="$CODEX_HOME/skills/anything2explainer"
-export BILIBILI_PUBLISH_SKILL_DIR="$CODEX_HOME/skills/bilibili-publish"
+export BILIBILI_PUBLISH_SKILL_DIR="$CODEX_HOME/skills/bilibili-publish"  # 也可放在 ~/.agents/skills
 export PPT_MASTER_DIR="$HOME/ppt-master/skills/ppt-master"
 
 python3 scripts/check_dependencies.py
@@ -177,7 +177,7 @@ Agent 应按以下顺序确定性执行：
 ```bash
 export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 export A2E_SKILL_DIR="$CODEX_HOME/skills/anything2explainer"
-export BILIBILI_PUBLISH_SKILL_DIR="$CODEX_HOME/skills/bilibili-publish"
+export BILIBILI_PUBLISH_SKILL_DIR="$CODEX_HOME/skills/bilibili-publish"  # 也可放在 ~/.agents/skills
 export PPT_MASTER_DIR="$HOME/ppt-master/skills/ppt-master"
 export SKILL_DIR="$CODEX_HOME/skills/a2e-bilibili-video"
 ```

@@ -70,7 +70,7 @@ No user-specific path is committed.
 |---|---|
 | `CODEX_HOME` | `$HOME/.codex` |
 | `A2E_SKILL_DIR` | `$CODEX_HOME/skills/anything2explainer` |
-| `BILIBILI_PUBLISH_SKILL_DIR` | `$CODEX_HOME/skills/bilibili-publish` |
+| `BILIBILI_PUBLISH_SKILL_DIR` | Searched in `$CODEX_HOME/skills`, `~/.agents/skills`, `~/.claude/skills`, `~/.config/opencode/skills` |
 | `PPT_MASTER_DIR` | `$HOME/ppt-master/skills/ppt-master` |
 | `CHROME_PATH` | Auto-detected or omitted |
 
