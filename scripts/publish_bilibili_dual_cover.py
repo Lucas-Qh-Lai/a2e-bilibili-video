@@ -88,12 +88,39 @@ def run_validator(python: Path, args: argparse.Namespace) -> None:
 
 
 def extract_cookies(publish_scripts: Path, cookies: str | None):
-    """Reuse the publishing skill's macOS CDP extractor when no cookies given."""
+    """Reuse the publishing skill's CDP extractor when no cookies are given.
+
+    macOS uses the tested shell script. Windows uses the PowerShell launcher,
+    which is provided but **untested** (see the publishing skill's
+    references/windows-cookies.md).
+    """
     if cookies:
         path = Path(cookies).expanduser().resolve()
         if not path.is_file():
             raise SystemExit(f"Cookie file not found: {path}")
         return path, None
+
+    if sys.platform == "win32":
+        windows_extractor = publish_scripts / "extract_bili_login_windows.ps1"
+        extractor = require(
+            windows_extractor, "bilibili-publish Windows credential extractor"
+        )
+        print(
+            "Note: the Windows credential extractor is UNTESTED. "
+            "If it fails, pass --cookies with a cookies.json you extracted yourself."
+        )
+        temp = tempfile.TemporaryDirectory(prefix="a2e-bilibili-")
+        path = Path(temp.name) / "cookies.json"
+        subprocess.run(
+            [
+                "powershell", "-ExecutionPolicy", "Bypass",
+                "-File", str(extractor),
+                "-Port", "9222",
+                "-Out", str(path),
+            ],
+            check=True,
+        )
+        return path, temp
 
     extractor = require(
         publish_scripts / "extract_bili_login_macos.sh",

@@ -2,6 +2,20 @@
 
 All notable changes are documented here.
 
+## [0.1.5] - 2026-10-03
+
+### Added
+
+- **Windows credential extraction path.** When running on Windows the adapter
+  invokes `bilibili-publish/scripts/extract_bili_login_windows.ps1` instead of
+  the macOS shell script, so the whole pipeline can run on Windows.
+
+### Windows support status
+
+> **UNTESTED.** The Windows extractor comes from `bilibili-publish` v0.2.0,
+> which has not been run on a Windows machine. `--cookies` remains available as
+> an escape hatch: extract the cookie JSON yourself and pass it in.
+
 ## [0.1.4] - 2026-10-03
 
 ### Fixed
