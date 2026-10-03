@@ -19,16 +19,31 @@ especially for commercial use.
 - Role: presentation and cover design workflow
 - License: MIT
 
+## bilibili-publish
+
+- Repository: https://github.com/Lucas-Qh-Lai/bilibili-publish
+- Author: Lucas-Qh-Lai
+- Role: publishing skill invoked at runtime by this repository's adapter
+- License: MIT (for that repository's own code)
+
+This repository does not copy or redistribute `bilibili-publish`. It invokes
+that skill's command-line entry point at runtime from the user's local
+installation.
+
 ## bilibili-ai-skills
 
 - Repository: https://github.com/sukai213/bilibili-ai-skills
 - Author: sukai213
-- Role: Bilibili publishing and verification workflow
-- License: no license was declared in the upstream repository at the time
-  this notice was written
+- Role: original source of the Bilibili publishing flow (upstream of
+  `bilibili-publish`)
+- License: no LICENSE file; the project's README states that its skills and
+  scripts are for personal learning and automation-workflow reference only
 
-This repository does not copy or redistribute the upstream Bilibili skill.
-It imports the skill at runtime from the user's local installation.
+The publishing flow in `bilibili-publish` was refactored from this project.
+`bilibili-publish` rewrote the scripts and documentation as an independent
+implementation and keeps a full attribution notice in its own
+`THIRD_PARTY_NOTICES.md`. This repository neither copies nor redistributes
+either project's source code.
 
 ## Runtime Dependencies
 
@@ -42,4 +57,3 @@ This repository may invoke:
 - a Chromium-based browser for optional SVG-to-PNG rendering
 
 Each dependency is governed by its own license.
-

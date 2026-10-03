@@ -19,8 +19,9 @@ instead of replacing them:
   provides the production workflow and Remotion template.
 - [ppt-master](https://github.com/hugohe3/ppt-master) provides the cover
   design workflow and editable PPTX output.
-- [bilibili-ai-skills](https://github.com/sukai213/bilibili-ai-skills)
-  provides the Bilibili publishing flow.
+- [bilibili-publish](https://github.com/Lucas-Qh-Lai/bilibili-publish)
+  provides the Bilibili publishing flow (refactored from
+  sukai213/bilibili-ai-skills).
 
 The repository contains only the integration layer, portable scripts,
 validators, and documentation. It does not vendor upstream source code,
@@ -52,7 +53,7 @@ credentials, generated videos, or machine-specific paths.
 Install these separately:
 
 1. [anything2explainer](https://github.com/Vincentwei1021/anything2explainer)
-2. [bilibili-ai-skills](https://github.com/sukai213/bilibili-ai-skills)
+2. [bilibili-publish](https://github.com/Lucas-Qh-Lai/bilibili-publish)
 3. [ppt-master](https://github.com/hugohe3/ppt-master)
 
 ### Platform notes
@@ -108,9 +109,8 @@ git clone https://github.com/Vincentwei1021/anything2explainer.git \
 Install the Bilibili skill:
 
 ```bash
-git clone https://github.com/sukai213/bilibili-ai-skills.git /tmp/bilibili-ai-skills
-cp -R /tmp/bilibili-ai-skills/skills/bilibili-ai-video \
-  "${CODEX_HOME:-$HOME/.codex}/skills/bilibili-ai-video"
+git clone https://github.com/Lucas-Qh-Lai/bilibili-publish.git \
+  "${CODEX_HOME:-$HOME/.codex}/skills/bilibili-publish"
 ```
 
 Install PPT Master:
@@ -120,7 +120,7 @@ git clone https://github.com/hugohe3/ppt-master.git "$HOME/ppt-master"
 ```
 
 If any project is installed elsewhere, set `A2E_SKILL_DIR`,
-`BILIBILI_SKILL_DIR`, and `PPT_MASTER_DIR`. No script assumes a username or
+`BILIBILI_PUBLISH_SKILL_DIR`, and `PPT_MASTER_DIR`. No script assumes a username or
 home directory.
 
 #### 3. Install this integration skill
@@ -149,7 +149,7 @@ guide instead of installing PPT Master packages globally.
 ```bash
 export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 export A2E_SKILL_DIR="$CODEX_HOME/skills/anything2explainer"
-export BILIBILI_SKILL_DIR="$CODEX_HOME/skills/bilibili-ai-video"
+export BILIBILI_PUBLISH_SKILL_DIR="$CODEX_HOME/skills/bilibili-publish"
 export PPT_MASTER_DIR="$HOME/ppt-master/skills/ppt-master"
 
 python3 scripts/check_dependencies.py
@@ -167,15 +167,14 @@ An Agent should perform these steps deterministically:
 2. Resolve `CODEX_HOME` from the environment, defaulting to `$HOME/.codex`.
 3. Clone or update `anything2explainer` to
    `$CODEX_HOME/skills/anything2explainer`.
-4. Clone or update `bilibili-ai-skills`, then install only its
-   `skills/bilibili-ai-video` directory to
-   `$CODEX_HOME/skills/bilibili-ai-video`.
+4. Clone or update `bilibili-publish` to
+   `$CODEX_HOME/skills/bilibili-publish`.
 5. Install `ppt-master` to `$HOME/ppt-master` unless the user provides a
    path.
 6. Install this repository to `$CODEX_HOME/skills/a2e-bilibili-video`.
 7. Create a project-local Python virtual environment and install
    `scripts/requirements.txt`.
-8. Export `A2E_SKILL_DIR`, `BILIBILI_SKILL_DIR`, and `PPT_MASTER_DIR` for the
+8. Export `A2E_SKILL_DIR`, `BILIBILI_PUBLISH_SKILL_DIR`, and `PPT_MASTER_DIR` for the
    current command.
 9. Run `scripts/check_dependencies.py` and report each failure separately.
 10. Never copy, print, or commit cookies, tokens, API keys, or local account
@@ -190,7 +189,7 @@ Set the dependency roots:
 ```bash
 export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 export A2E_SKILL_DIR="$CODEX_HOME/skills/anything2explainer"
-export BILIBILI_SKILL_DIR="$CODEX_HOME/skills/bilibili-ai-video"
+export BILIBILI_PUBLISH_SKILL_DIR="$CODEX_HOME/skills/bilibili-publish"
 export PPT_MASTER_DIR="$HOME/ppt-master/skills/ppt-master"
 export SKILL_DIR="$CODEX_HOME/skills/a2e-bilibili-video"
 ```
@@ -278,7 +277,7 @@ This project depends on and thanks:
    system.
 2. [ppt-master](https://github.com/hugohe3/ppt-master) for the presentation
    and cover design workflow.
-3. [bilibili-ai-skills](https://github.com/sukai213/bilibili-ai-skills) for
+3. [bilibili-publish](https://github.com/Lucas-Qh-Lai/bilibili-publish) for
    the Bilibili publishing and verification flow.
 
 Their authors retain all rights to their work.

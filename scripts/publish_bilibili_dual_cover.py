@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
-"""Publish a validated video with separate 16:9 and 4:3 Bilibili covers."""
+"""Publish a validated video with separate 16:9 and 4:3 Bilibili covers.
+
+This adapter does not implement the upload itself. It validates the delivery
+assets, then hands the actual publishing off to the standalone
+``bilibili-publish`` skill by invoking its command-line entry point.
+
+Keeping the upload in its own skill means A2E owns production and
+``bilibili-publish`` owns publishing, with a stable CLI contract between them.
+"""
 
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import os
 import subprocess
@@ -13,18 +20,23 @@ import tempfile
 import time
 from pathlib import Path
 
+PUBLISH_SKILL_NAME = "bilibili-publish"
+
 
 def codex_home() -> Path:
     return Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")).expanduser()
 
 
-def bilibili_root(explicit: str | None) -> Path:
+def publish_skill_root(explicit: str | None) -> Path:
+    """Resolve the bilibili-publish skill directory."""
     if explicit:
         return Path(explicit).expanduser().resolve()
-    configured = os.environ.get("BILIBILI_SKILL_DIR")
+    configured = os.environ.get("BILIBILI_PUBLISH_SKILL_DIR") or os.environ.get(
+        "BILIBILI_SKILL_DIR"
+    )
     if configured:
         return Path(configured).expanduser().resolve()
-    return codex_home() / "skills" / "bilibili-ai-video"
+    return codex_home() / "skills" / PUBLISH_SKILL_NAME
 
 
 def default_python() -> Path:
@@ -35,34 +47,10 @@ def default_python() -> Path:
     return Path(sys.executable)
 
 
-def load_module(path: Path):
+def require(path: Path, label: str) -> Path:
     if not path.is_file():
-        raise SystemExit(f"Missing upstream module: {path}")
-    spec = importlib.util.spec_from_file_location(path.stem, path)
-    if spec is None or spec.loader is None:
-        raise SystemExit(f"Unable to import upstream module: {path}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
-class DualCoverSession:
-    """Proxy an upstream requests session and inject cover43 on add/v3."""
-
-    def __init__(self, upstream_session, cover43_url: str):
-        self._upstream_session = upstream_session
-        self._cover43_url = cover43_url
-
-    def __getattr__(self, name):
-        return getattr(self._upstream_session, name)
-
-    def post(self, url: str, *args, **kwargs):
-        if "/x/vu/web/add/v3" in url and isinstance(kwargs.get("json"), dict):
-            kwargs["json"] = {
-                **kwargs["json"],
-                "cover43": self._cover43_url,
-            }
-        return self._upstream_session.post(url, *args, **kwargs)
+        raise SystemExit(f"Missing {label}: {path}")
+    return path
 
 
 def run_validator(python: Path, args: argparse.Namespace) -> None:
@@ -71,32 +59,27 @@ def run_validator(python: Path, args: argparse.Namespace) -> None:
         [
             str(python),
             str(validator),
-            "--video",
-            str(args.video),
-            "--cover-16x9",
-            str(args.cover_16x9),
-            "--cover-4x3",
-            str(args.cover_4x3),
-            "--publish-json",
-            str(args.config),
+            "--video", str(args.video),
+            "--cover-16x9", str(args.cover_16x9),
+            "--cover-4x3", str(args.cover_4x3),
+            "--publish-json", str(args.config),
         ],
         check=True,
     )
 
 
-def extract_cookies(upstream: Path, cookies: str | None) -> tuple[Path, tempfile.TemporaryDirectory | None]:
+def extract_cookies(publish_scripts: Path, cookies: str | None):
+    """Reuse the publishing skill's macOS CDP extractor when no cookies given."""
     if cookies:
         path = Path(cookies).expanduser().resolve()
         if not path.is_file():
             raise SystemExit(f"Cookie file not found: {path}")
         return path, None
 
-    extractor = upstream / "extract_bili_login_macos.sh"
-    if not extractor.is_file():
-        raise SystemExit(
-            "--cookies was omitted, but the upstream macOS extractor is missing: "
-            f"{extractor}"
-        )
+    extractor = require(
+        publish_scripts / "extract_bili_login_macos.sh",
+        "bilibili-publish credential extractor",
+    )
     temp = tempfile.TemporaryDirectory(prefix="a2e-bilibili-")
     path = Path(temp.name) / "cookies.json"
     subprocess.run([str(extractor), "9222", str(path)], check=True)
@@ -111,7 +94,8 @@ def main() -> int:
     parser.add_argument("--cover-4x3", required=True)
     parser.add_argument("--config", required=True)
     parser.add_argument("--cookies")
-    parser.add_argument("--bilibili-skill-dir")
+    parser.add_argument("--bilibili-skill-dir",
+                        help=f"Path to the {PUBLISH_SKILL_NAME} skill")
     parser.add_argument("--python", default=str(default_python()))
     parser.add_argument("--validate-only", action="store_true")
     parser.add_argument("--skip-public-wait", action="store_true")
@@ -125,103 +109,75 @@ def main() -> int:
     # Do not resolve symlinks here: a venv's `bin/python` intentionally points
     # at the base interpreter, but resolving it would discard the venv context.
     python = Path(args.python).expanduser()
+
     run_validator(python, args)
     if args.validate_only:
         return 0
 
-    upstream_root = bilibili_root(args.bilibili_skill_dir)
-    upstream_scripts = upstream_root / "scripts"
-    publisher = load_module(upstream_scripts / "publish_bilibili.py")
-    verifier = upstream_scripts / "verify_published.py"
-    if not verifier.is_file():
-        raise SystemExit(f"Missing upstream verifier: {verifier}")
+    root = publish_skill_root(args.bilibili_skill_dir)
+    scripts = root / "scripts"
+    publisher = require(scripts / "publish_bilibili.py", "bilibili-publish publisher")
+    verifier = require(scripts / "verify_published.py", "bilibili-publish verifier")
 
-    config = json.loads(args.config.read_text(encoding="utf-8-sig"))
-    cookie_path, temp = extract_cookies(upstream_scripts, args.cookies)
+    cookie_path, temp = extract_cookies(scripts, args.cookies)
     try:
-        cookies = json.loads(cookie_path.read_text(encoding="utf-8-sig"))
-        csrf = cookies.get("bili_jct")
-        if not csrf:
-            raise SystemExit("Cookie extraction did not return bili_jct")
+        config = json.loads(args.config.read_text(encoding="utf-8-sig"))
 
-        session = publisher.make_session(cookies)
-        cover_url = publisher.step_cover(session, str(args.cover_16x9), csrf)
-        cover43_url = publisher.step_cover(session, str(args.cover_4x3), csrf)
-        pre = publisher.step_preupload(
-            session, args.video.name, args.video.stat().st_size
-        )
-        upload_id, upos_url = publisher.step_meta(
-            pre, args.video.stat().st_size
-        )
-        etags, chunks = publisher.step_chunks(
-            upos_url,
-            pre["auth"],
-            upload_id,
-            str(args.video),
-            args.video.stat().st_size,
-            pre["chunk_size"],
-        )
-        publisher.step_finalize(
-            upos_url,
-            pre["auth"],
-            upload_id,
-            pre["biz_id"],
-            args.video.name,
-            etags,
-            chunks,
-        )
-        stem = Path(pre["upos_uri"]).stem
+        command = [
+            str(python), str(publisher),
+            "--video", str(args.video),
+            "--cover", str(args.cover_16x9),
+            "--cover43", str(args.cover_4x3),
+            "--cookies", str(cookie_path),
+            "--config", str(args.config),
+        ]
+        print("Delegating publish to bilibili-publish:", " ".join(command))
+        subprocess.run(command, check=True)
 
-        data = publisher.step_submit(
-            DualCoverSession(session, cover43_url),
-            config,
-            cover_url,
-            stem,
-            pre["biz_id"],
-            csrf,
-        )
+        # bilibili-publish writes publish_result.json next to its config.
+        upstream_result = args.config.parent / "publish_result.json"
+        result = json.loads(upstream_result.read_text(encoding="utf-8")) if upstream_result.is_file() else {}
+        data = result.get("data") or {}
+        bvid = data.get("bvid") or result.get("bvid")
+        if not bvid:
+            raise SystemExit(
+                "bilibili-publish finished but no bvid was found in "
+                f"{upstream_result}"
+            )
 
-        result_path = (
-            args.project / "delivery" / "bilibili" / "publish_result.json"
-        )
+        result_path = args.project / "delivery" / "bilibili" / "publish_result.json"
         result_path.parent.mkdir(parents=True, exist_ok=True)
         result_path.write_text(
             json.dumps(
                 {
-                    "bvid": data.get("bvid"),
-                    "aid": data.get("aid"),
-                    "cover": cover_url,
-                    "cover43": cover43_url,
-                    "title": config["title"],
+                    "bvid": bvid,
+                    "aid": data.get("aid") or result.get("aid"),
+                    "cover": result.get("cover"),
+                    "cover43": result.get("cover43"),
+                    "title": config.get("title"),
                     "published_at": time.time(),
+                    "published_by": PUBLISH_SKILL_NAME,
                 },
                 ensure_ascii=False,
                 indent=2,
-            )
-            + "\n",
+            ) + "\n",
             encoding="utf-8",
         )
-        bvid = data.get("bvid")
         print(f"Published: https://www.bilibili.com/video/{bvid}")
 
         if not args.skip_public_wait:
             print("Waiting 120 seconds before public verification.")
             time.sleep(120)
         subprocess.run(
-            [
-                str(python),
-                str(verifier),
-                "--bvid",
-                str(bvid),
-                "--cookies",
-                str(cookie_path),
-            ],
+            [str(python), str(verifier),
+             "--bvid", str(bvid), "--cookies", str(cookie_path)],
             check=False,
         )
+        print(f"Delivery receipt: {result_path}")
+        return 0
     finally:
         if temp is not None:
             temp.cleanup()
-    return 0
 
 
 if __name__ == "__main__":

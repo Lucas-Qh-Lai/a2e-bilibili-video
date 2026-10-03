@@ -26,7 +26,7 @@ PPT Master 16:9 cover        PPT Master 4:3 cover
                       v
           asset and metadata validation
                       v
-          bilibili-ai-video publishing
+          bilibili-publish
              cover + cover43 + UPOS
                       v
                public verification
@@ -40,7 +40,7 @@ PPT Master 16:9 cover        PPT Master 4:3 cover
 | Edge TTS | Voice synthesis | Video rendering |
 | Remotion | Final frame rendering | Presentation editing |
 | PPT Master | Cover design and editable PPTX | Main video animation |
-| `bilibili-ai-video` | Login, UPOS, upload, verification | Video production |
+| `bilibili-publish` | Login, UPOS, upload, verification | Video production |
 | This repository | Integration, portability, validation | Upstream source code |
 
 ## Why Not Merge the Projects
@@ -59,7 +59,8 @@ systems, and quality gates. This repository instead defines narrow interfaces:
 2. The adapter renders the same project at 1920×1080.
 3. PPT Master produces two cover PNGs and source SVGs.
 4. Validation checks the final file contract.
-5. The publishing adapter delegates to the installed Bilibili skill.
+5. The publishing adapter delegates to the installed `bilibili-publish`
+   skill through its CLI.
 
 ## Path Resolution
 
@@ -69,14 +70,15 @@ No user-specific path is committed.
 |---|---|
 | `CODEX_HOME` | `$HOME/.codex` |
 | `A2E_SKILL_DIR` | `$CODEX_HOME/skills/anything2explainer` |
-| `BILIBILI_SKILL_DIR` | `$CODEX_HOME/skills/bilibili-ai-video` |
+| `BILIBILI_PUBLISH_SKILL_DIR` | `$CODEX_HOME/skills/bilibili-publish` |
 | `PPT_MASTER_DIR` | `$HOME/ppt-master/skills/ppt-master` |
 | `CHROME_PATH` | Auto-detected or omitted |
 
 ## Trust Boundaries
 
 - Upstream projects are cloned or installed by the user.
-- This repository imports the upstream publishing module at runtime.
+- This repository invokes the publishing skill's CLI at runtime; it does
+  not import or vendor upstream publishing code.
 - Cover and video files are validated before any upload.
 - The publishing adapter requires explicit user confirmation upstream of the
   tool call.

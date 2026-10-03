@@ -17,8 +17,8 @@
   提供制作流程、Remotion 模板与视觉规范。
 - [ppt-master](https://github.com/hugohe3/ppt-master) 提供封面设计流程与
   可编辑 PPTX 输出。
-- [bilibili-ai-skills](https://github.com/sukai213/bilibili-ai-skills)
-  提供 B 站发布与验证流程。
+- [bilibili-publish](https://github.com/Lucas-Qh-Lai/bilibili-publish)
+  提供 B 站发布与验证流程（重构自 sukai213/bilibili-ai-skills）。
 
 本仓库只包含集成层、可移植脚本、校验器和文档，不重新分发上游源码、
 凭据、成片或机器专属路径。
@@ -49,7 +49,7 @@
 需要单独安装：
 
 1. [anything2explainer](https://github.com/Vincentwei1021/anything2explainer)
-2. [bilibili-ai-skills](https://github.com/sukai213/bilibili-ai-skills)
+2. [bilibili-publish](https://github.com/Lucas-Qh-Lai/bilibili-publish)
 3. [ppt-master](https://github.com/hugohe3/ppt-master)
 
 ### 平台说明
@@ -103,9 +103,8 @@ git clone https://github.com/Vincentwei1021/anything2explainer.git \
 安装 B 站 skill：
 
 ```bash
-git clone https://github.com/sukai213/bilibili-ai-skills.git /tmp/bilibili-ai-skills
-cp -R /tmp/bilibili-ai-skills/skills/bilibili-ai-video \
-  "${CODEX_HOME:-$HOME/.codex}/skills/bilibili-ai-video"
+git clone https://github.com/Lucas-Qh-Lai/bilibili-publish.git \
+  "${CODEX_HOME:-$HOME/.codex}/skills/bilibili-publish"
 ```
 
 安装 PPT Master：
@@ -114,7 +113,7 @@ cp -R /tmp/bilibili-ai-skills/skills/bilibili-ai-video \
 git clone https://github.com/hugohe3/ppt-master.git "$HOME/ppt-master"
 ```
 
-如果安装到其他位置，请设置 `A2E_SKILL_DIR`、`BILIBILI_SKILL_DIR` 和
+如果安装到其他位置，请设置 `A2E_SKILL_DIR`、`BILIBILI_PUBLISH_SKILL_DIR` 和
 `PPT_MASTER_DIR`。脚本不假定用户名或固定主目录。
 
 #### 3. 安装本 Skill
@@ -142,7 +141,7 @@ PPT Master 可能有独立依赖，请遵循它的安装文档，不要全局安
 ```bash
 export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 export A2E_SKILL_DIR="$CODEX_HOME/skills/anything2explainer"
-export BILIBILI_SKILL_DIR="$CODEX_HOME/skills/bilibili-ai-video"
+export BILIBILI_PUBLISH_SKILL_DIR="$CODEX_HOME/skills/bilibili-publish"
 export PPT_MASTER_DIR="$HOME/ppt-master/skills/ppt-master"
 
 python3 scripts/check_dependencies.py
@@ -159,14 +158,12 @@ Agent 应按以下顺序确定性执行：
 2. 从环境读取 `CODEX_HOME`，缺省为 `$HOME/.codex`。
 3. 将 `anything2explainer` 克隆或更新到
    `$CODEX_HOME/skills/anything2explainer`。
-4. 克隆或更新 `bilibili-ai-skills`，只把
-   `skills/bilibili-ai-video` 安装到
-   `$CODEX_HOME/skills/bilibili-ai-video`。
+4. 克隆或更新 `bilibili-publish` 到 `$CODEX_HOME/skills/bilibili-publish`。
 5. 除非用户指定其他位置，否则将 `ppt-master` 安装到
    `$HOME/ppt-master`。
 6. 将本仓库安装到 `$CODEX_HOME/skills/a2e-bilibili-video`。
 7. 创建项目内 Python 虚拟环境并安装 `scripts/requirements.txt`。
-8. 为当前命令设置 `A2E_SKILL_DIR`、`BILIBILI_SKILL_DIR` 和
+8. 为当前命令设置 `A2E_SKILL_DIR`、`BILIBILI_PUBLISH_SKILL_DIR` 和
    `PPT_MASTER_DIR`。
 9. 运行 `scripts/check_dependencies.py`，逐项报告问题。
 10. 不得复制、打印或提交 Cookie、Token、API Key 或本地账号数据。
@@ -180,7 +177,7 @@ Agent 应按以下顺序确定性执行：
 ```bash
 export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 export A2E_SKILL_DIR="$CODEX_HOME/skills/anything2explainer"
-export BILIBILI_SKILL_DIR="$CODEX_HOME/skills/bilibili-ai-video"
+export BILIBILI_PUBLISH_SKILL_DIR="$CODEX_HOME/skills/bilibili-publish"
 export PPT_MASTER_DIR="$HOME/ppt-master/skills/ppt-master"
 export SKILL_DIR="$CODEX_HOME/skills/a2e-bilibili-video"
 ```
@@ -260,8 +257,8 @@ delivery/bilibili/publish_result.json
    提供制作流程、Remotion 模板、动效语言和 QC 体系。
 2. [ppt-master](https://github.com/hugohe3/ppt-master) 提供演示文稿和封面
    设计流程。
-3. [bilibili-ai-skills](https://github.com/sukai213/bilibili-ai-skills)
-   提供 B 站发布与验证流程。
+3. [bilibili-publish](https://github.com/Lucas-Qh-Lai/bilibili-publish)
+   提供 B 站发布与验证流程（重构自 sukai213/bilibili-ai-skills）。
 
 原作者保留其作品的全部权利。
 

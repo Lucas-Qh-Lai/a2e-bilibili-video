@@ -22,8 +22,8 @@ def main() -> int:
         "A2E": resolve(
             "A2E_SKILL_DIR", codex_home() / "skills" / "anything2explainer"
         ),
-        "Bilibili": resolve(
-            "BILIBILI_SKILL_DIR", codex_home() / "skills" / "bilibili-ai-video"
+        "Bilibili publish": resolve(
+            "BILIBILI_PUBLISH_SKILL_DIR", codex_home() / "skills" / "bilibili-publish"
         ),
         "PPT Master": resolve(
             "PPT_MASTER_DIR", Path.home() / "ppt-master" / "skills" / "ppt-master"

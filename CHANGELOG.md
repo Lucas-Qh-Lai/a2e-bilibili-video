@@ -2,6 +2,40 @@
 
 All notable changes are documented here.
 
+## [0.1.3] - 2026-10-03
+
+### Changed
+
+- **Publishing now delegates to the standalone `bilibili-publish` skill.**
+  The adapter no longer imports the upstream `bilibili-ai-video` publishing
+  module; it validates the delivery assets and then invokes
+  `bilibili-publish/scripts/publish_bilibili.py` through its command-line
+  interface.
+- The 4:3 cover is passed with `--cover43`, which `bilibili-publish` supports
+  natively. The previous session-level shim that injected `cover43` into the
+  `add/v3` payload has been removed.
+- The dependency variable is now `BILIBILI_PUBLISH_SKILL_DIR`
+  (default `$CODEX_HOME/skills/bilibili-publish`). `BILIBILI_SKILL_DIR` is
+  still read as a fallback so existing setups keep working.
+- Publishing receipts now record `published_by` so it is clear which skill
+  performed the upload.
+
+### Added
+
+- `references/bilibili-publish.md` documents the CLI hand-off contract and
+  retains the upstream attribution.
+
+### Attribution
+
+- The publishing flow in `bilibili-publish` was refactored from
+  [sukai213/bilibili-ai-skills](https://github.com/sukai213/bilibili-ai-skills)
+  (`skills/bilibili-ai-video`). That repository has no LICENSE file and states
+  that its skills and scripts are for personal learning and automation-workflow
+  reference only. `bilibili-publish` rewrote the scripts and docs as an
+  independent implementation and keeps a full notice in its own
+  `THIRD_PARTY_NOTICES.md`; this repository neither copies nor redistributes
+  either project's code.
+
 ## [0.1.2] - 2026-09-13
 
 ### First Stable Release

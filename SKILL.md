@@ -11,7 +11,7 @@ it to Bilibili:
 - **Production:** `anything2explainer` (A2E)
 - **Narration:** Edge TTS, with the voice selected by the Agent
 - **Covers:** PPT Master, exported as independent 16:9 and 4:3 PNG files
-- **Publishing:** the installed `bilibili-ai-video` skill and its CDP/UPOS flow
+- **Publishing:** the installed `bilibili-publish` skill and its CDP/UPOS flow
 
 This repository does not vendor those upstream projects. It provides the
 portable adapter, validation, documentation, and orchestration layer.
@@ -23,7 +23,7 @@ Resolve the dependency roots before running commands:
 ```bash
 export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 export A2E_SKILL_DIR="${A2E_SKILL_DIR:-$CODEX_HOME/skills/anything2explainer}"
-export BILIBILI_SKILL_DIR="${BILIBILI_SKILL_DIR:-$CODEX_HOME/skills/bilibili-ai-video}"
+export BILIBILI_PUBLISH_SKILL_DIR="${BILIBILI_PUBLISH_SKILL_DIR:-$CODEX_HOME/skills/bilibili-publish}"
 export PPT_MASTER_DIR="${PPT_MASTER_DIR:-$HOME/ppt-master/skills/ppt-master}"
 export SKILL_DIR="${SKILL_DIR:-$CODEX_HOME/skills/a2e-bilibili-video}"
 ```
@@ -169,13 +169,14 @@ python3 "$SKILL_DIR/scripts/publish_bilibili_dual_cover.py" \
   --config /path/to/publish.json
 ```
 
-The adapter imports the installed `bilibili-ai-video` publishing functions;
-it does not bundle or redistribute that project. It uploads both covers,
-injects the 4:3 URL as `cover43`, and then verifies the public result.
+The adapter invokes the installed `bilibili-publish` skill's CLI;
+it does not bundle or redistribute that project. It uploads both covers
+(bilibili-publish supports the 4:3 cover natively via `--cover43`), then
+verifies the public result.
 
-If the Bilibili skill is installed elsewhere, pass
-`--bilibili-skill-dir /absolute/path/to/bilibili-ai-video` or set
-`BILIBILI_SKILL_DIR`.
+If the publishing skill is installed elsewhere, pass
+`--bilibili-skill-dir /absolute/path/to/bilibili-publish` or set
+`BILIBILI_PUBLISH_SKILL_DIR`.
 
 ## Verification
 
